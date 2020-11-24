@@ -67,6 +67,7 @@ class Reportly() {
        |<script>${Plotly.plotlyMinJs}</script>
        |<script>${markedMinJs}</script>
        |<style>${markdownCSS}</style>
+       |<style>div.markdown-body {padding:5 0 5 0}</style>
        |</head>
        |<body>
        |${elements.toSeq.map(_.render()).mkString("\n")}
