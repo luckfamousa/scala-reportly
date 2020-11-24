@@ -1,0 +1,270 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>de.stereotypez</groupId>
+  <artifactId>scala-reportly_${scala.compat.version}</artifactId>
+  <version>0.1.1</version>
+  <packaging>jar</packaging>
+
+  <name>${project.artifactId}</name>
+  <description>Minimal Scala lib to produce self contained HTML reports for scientific projects</description>
+  <url>https://github.com/luckfamousa/scala-reportly</url>
+  <inceptionYear>2020</inceptionYear>
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>http://www.opensource.org/licenses/mit-license.php</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Felix Nensa</name>
+      <email>felix.nensa@gmail.com</email>
+      <organizationUrl>https://twitter.com/FelixNensa</organizationUrl>
+    </developer>
+  </developers>
+
+  <!--
+  <scm>
+    <connection>scm:git:git://github.com/luckfamousa/DicomDeidentify.git</connection>
+    <developerConnection>scm:git:ssh://github.com:luckfamousa/DicomDeidentify.git</developerConnection>
+    <url>http://github.com/luckfamousa/DicomDeidentify/tree/master</url>
+  </scm>
+  -->
+
+  <properties>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <encoding>UTF-8</encoding>
+    <scala.version>2.13.3</scala.version>
+    <scala.compat.version>2.13</scala.compat.version>
+    <plotly-render.version>0.8.0</plotly-render.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala-library</artifactId>
+      <version>${scala.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.plotly-scala</groupId>
+      <artifactId>plotly-render_${scala.compat.version}</artifactId>
+      <version>${plotly-render.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>1.9</version>
+    </dependency>
+    <!-- Test -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <distributionManagement>
+    <!-- GitHub Packages  -->
+    <repository>
+      <id>github</id>
+      <name>GitHub luckfamousa Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/luckfamousa/scala-reportly</url>
+    </repository>
+    <!-- Central Repository -->
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <build>
+    <sourceDirectory>src/main/scala</sourceDirectory>
+    <testSourceDirectory>src/test/scala</testSourceDirectory>
+    <plugins>
+      <plugin>
+        <!-- see http://davidb.github.com/scala-maven-plugin -->
+        <groupId>net.alchim31.maven</groupId>
+        <artifactId>scala-maven-plugin</artifactId>
+        <version>3.3.2</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+              <goal>testCompile</goal>
+            </goals>
+            <configuration>
+              <args>
+                <arg>-dependencyfile</arg>
+                <arg>${project.build.directory}/.scala_dependencies</arg>
+              </args>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.21.0</version>
+        <configuration>
+          <skipTests>false</skipTests>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>download-files</id>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <tasks>
+                <get src="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/4.0.0/github-markdown.min.css"
+                     dest="${basedir}/src/main/resources/github-markdown.min.css"
+                     verbose="true"
+                     usetimestamp="true"/>
+                <get src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"
+                     dest="${basedir}/src/main/resources/marked.min.js"
+                     verbose="true"
+                     usetimestamp="true"/>
+              </tasks>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <profiles>
+    <!-- Different profiles for different scala versions. Set by env-var SCALA_VERSION -->
+    <profile>
+      <id>2.13</id>
+      <properties>
+        <scala.version>2.13.3</scala.version>
+        <scala.compat.version>2.13</scala.compat.version>
+      </properties>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+        <property>
+          <name>env.SCALA_VERSION</name>
+          <value>2.13</value>
+        </property>
+      </activation>
+    </profile>
+    <profile>
+      <id>2.12</id>
+      <properties>
+        <scala.version>2.12.6</scala.version>
+        <scala.compat.version>2.12</scala.compat.version>
+      </properties>
+      <activation>
+        <property>
+          <name>env.SCALA_VERSION</name>
+          <value>2.12</value>
+        </property>
+      </activation>
+    </profile>
+
+    <!-- Deployment profile (required so these plugins are only used when deploying) -->
+    <profile>
+      <id>deploy</id>
+      <build>
+        <plugins>
+
+          <!-- Nexus Staging Plugin -->
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <version>1.6.8</version>
+            <extensions>true</extensions>
+            <configuration>
+              <serverId>ossrh</serverId>
+              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+              <stagingProgressTimeoutMinutes>60</stagingProgressTimeoutMinutes>
+            </configuration>
+          </plugin>
+
+          <!-- Source plugin -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>3.2.0</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!-- Javadoc plugin -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.1.1</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>net.alchim31.maven</groupId>
+            <artifactId>scala-maven-plugin</artifactId>
+            <version>4.3.0</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>doc-jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!-- GPG plugin -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.6</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <!-- Prevent `gpg` from using pinentry programs -->
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>
